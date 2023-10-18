@@ -9,7 +9,8 @@ console.log('ul { list-style: none; padding-left: 2em; border-left: 1px solid #c
 console.log('li { margin: 0.5em 0; }');
 console.log('a { text-decoration: none; color: blue; }');
 console.log('a:hover { text-decoration: underline; }');
-console.log('span.scope { color: grey; }');
+console.log('.specific-version { text-decoration: underline; text-decoration-style: dotted; }');
+console.log('span.scope, span.packaging { color: grey; }');
 console.log('</style>');
 console.log('</head>');
 console.log('<body>');
@@ -64,9 +65,15 @@ function generateHTML(nodes, indent = '') {
   if (nodes.length === 0) return;
   console.log(`${indent}<ul>`);
   for (const node of nodes) {
-    const url = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}/${node.version}`;
-    const dependency = `${node.groupId}:${node.artifactId}:${node.version}:${node.packaging}`;
-    console.log(`${indent}  <li><a href="${url}" target="_blank">${dependency}</a>${!!node.scope ? ':<span class="scope">' + node.scope + '</span>' : ''}</li>`);
+    const baseArtifactUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}`;
+    const specificVersionUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}/${node.version}`;
+    const dependency = `${node.groupId}:${node.artifactId}`;
+    console.log(`${indent}  <li>`
+      + `<a href="${baseArtifactUrl}" target="_blank" class="base-artifact">${dependency}</a>`
+      + `:<a href="${specificVersionUrl}" target="_blank" class="specific-version">${node.version}</a>`
+      + `<span class="packaging">:${node.packaging}</span>`
+      + `${!!node.scope ? '<span class="scope">:' + node.scope + '</span>' : ''}`
+      + `</li>`);
     generateHTML(node.children, `${indent}  `);
   }
   console.log(`${indent}</ul>`);
