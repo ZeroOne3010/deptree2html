@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const readline = require('readline');
 
 console.log('<!DOCTYPE html>');
