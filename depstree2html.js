@@ -11,9 +11,23 @@ console.log('a { text-decoration: none; color: blue; }');
 console.log('a:hover { text-decoration: underline; }');
 console.log('.specific-version { text-decoration: underline; text-decoration-style: dotted; }');
 console.log('span.scope, span.packaging { color: grey; }');
+console.log('.hidden { display: none; }');
 console.log('</style>');
+console.log("<script>");
+console.log("  const toggleTestDependencies = () => {");
+console.log("    const elements = document.querySelectorAll('li.test');");
+console.log("    elements.forEach((el) => {");
+console.log("      if (el.classList.contains('hidden')) {");
+console.log("        el.classList.remove('hidden');");
+console.log("      } else {");
+console.log("        el.classList.add('hidden');");
+console.log("      }");
+console.log("    });");
+console.log("  }");
+console.log("</script>");
 console.log('</head>');
 console.log('<body>');
+console.log('<button onclick="toggleTestDependencies()">Toggle Test Dependencies</button>');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -68,7 +82,7 @@ function generateHTML(nodes, indent = '') {
     const baseArtifactUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}`;
     const specificVersionUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}/${node.version}`;
     const dependency = `${node.groupId}:${node.artifactId}`;
-    console.log(`${indent}  <li>`
+    console.log(`${indent}  <li${!!node.scope && node.scope === 'test' ? ' class="test"' : ''}>`
       + `<a href="${baseArtifactUrl}" target="_blank" class="base-artifact">${dependency}</a>`
       + `:<a href="${specificVersionUrl}" target="_blank" class="specific-version">${node.version}</a>`
       + `<span class="packaging">:${node.packaging}</span>`
