@@ -5,6 +5,7 @@ console.log('<html lang="en">');
 console.log('<head><title>Maven dependency tree</title>');
 console.log('<style>');
 console.log('body { font-family: Arial, sans-serif; }');
+console.log('h1 { position: sticky; top: 0; background-color: #fff; z-index: 1; padding-bottom: 10px; border-bottom: 1px solid #aaa; }')
 console.log('ul { list-style: none; padding-left: 2em; border-left: 1px solid #ccc; }');
 console.log('li { margin: 0.5em 0; }');
 console.log('a { text-decoration: none; color: blue; }');
