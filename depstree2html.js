@@ -32,6 +32,12 @@ console.log('</head>');
 console.log('<body>');
 console.log('<button onclick="toggleTestDependencies()">Toggle Test Dependencies</button>');
 
+const args = process.argv;
+const ignorePackagesIndex = args.findIndex(arg => arg === '--ignore-packages') + 1;
+const ignorePackages = ignorePackagesIndex > 0 && args.length > ignorePackagesIndex
+  ? args[ignorePackagesIndex].split(",")
+  : undefined;
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -81,13 +87,21 @@ rl.on('close', function () {
 function generateHTML(nodes, indent = '') {
   if (nodes.length === 0) return;
   console.log(`${indent}<ul>`);
+
+  const createLinkOrPlainText = (baseArtifactUrl, dependency, specificVersionUrl, node) => {
+    if (ignorePackages && ignorePackages.find(ignoredPackage => dependency.startsWith(ignoredPackage))) {
+      return dependency;
+    }
+    return `<a href="${baseArtifactUrl}" target="_blank" class="base-artifact">${dependency}</a>`
+      + `:<a href="${specificVersionUrl}" target="_blank" class="specific-version">${node.version}</a>`;
+  }
+
   for (const node of nodes) {
     const baseArtifactUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}`;
     const specificVersionUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}/${node.version}`;
     const dependency = `${node.groupId}:${node.artifactId}`;
     console.log(`${indent}  <li${!!node.scope && node.scope === 'test' ? ' class="test"' : ''}>`
-      + `<a href="${baseArtifactUrl}" target="_blank" class="base-artifact">${dependency}</a>`
-      + `:<a href="${specificVersionUrl}" target="_blank" class="specific-version">${node.version}</a>`
+      + createLinkOrPlainText(baseArtifactUrl, dependency, specificVersionUrl, node)
       + `<span class="packaging">:${node.packaging}</span>`
       + `${!!node.scope ? '<span class="scope">:' + node.scope + '</span>' : ''}`
       + `</li>`);

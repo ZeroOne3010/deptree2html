@@ -27,4 +27,13 @@ To generate an HTML file with your Maven dependencies, navigate to your Maven pr
 mvn dependency:tree | depstree2html > output.html
 ```
 
-Open **output.html** in your browser to view the dependencies.
+To exclude specific packages from being linked, use the `--ignore-packages` option followed by a comma-separated list of
+package prefixes to ignore. For example:
+
+```shell
+mvn dependency:tree | depstree2html --ignore-packages org.acme,com.example > output.html
+```
+
+This will generate output.html without linking dependencies that start with `org.acme` or `com.example`.
+
+Finally, open **output.html** in your browser to view the dependencies.
