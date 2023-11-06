@@ -1,6 +1,22 @@
 #!/usr/bin/env node
 
 const readline = require('readline');
+const fs = require('fs');
+
+const latestVersionsFileName = 'latestVersions.json';
+let latestVersions;
+
+try {
+  const latestVersionsFileData = fs.readFileSync('latestVersions.json', 'utf8');
+  latestVersions = JSON.parse(latestVersionsFileData);
+  console.error("Latest versions parsed successfully.");
+} catch (err) {
+  if (err.code === 'ENOENT') {
+    console.error(`${latestVersionsFileName} does not exist, so latest versions of dependecies will not be reported.`);
+  } else {
+    console.error(`An error occurred while reading the file ${latestVersionsFileName}:`, err);
+  }
+}
 
 console.log('<!DOCTYPE html>');
 console.log('<html lang="en">');
@@ -31,6 +47,9 @@ console.log("</script>");
 console.log('</head>');
 console.log('<body>');
 console.log('<button onclick="toggleTestDependencies()">Toggle Test Dependencies</button>');
+if (latestVersions.date) {
+  console.log(`<p>Latest versions refreshed on ${latestVersions.date}</p>`);
+}
 
 const args = process.argv;
 const ignorePackagesIndex = args.findIndex(arg => arg === '--ignore-packages') + 1;
@@ -96,6 +115,17 @@ function generateHTML(nodes, indent = '') {
       + `:<a href="${specificVersionUrl}" target="_blank" class="specific-version">${node.version}</a>`;
   }
 
+  const createLatestVersion = (dependency, version) => {
+    if (!latestVersions) {
+      return '';
+    }
+    const latestVersion = latestVersions?.packages[dependency]?.latestVersion;
+    if (!latestVersion || version === latestVersion) {
+      return '';
+    }
+    return `<strong> ➜ ${latestVersions.packages[dependency].latestVersion}</strong>`;
+  }
+
   for (const node of nodes) {
     const baseArtifactUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}`;
     const specificVersionUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}/${node.version}`;
@@ -104,6 +134,7 @@ function generateHTML(nodes, indent = '') {
       + createLinkOrPlainText(baseArtifactUrl, dependency, specificVersionUrl, node)
       + `<span class="packaging">:${node.packaging}</span>`
       + `${!!node.scope ? '<span class="scope">:' + node.scope + '</span>' : ''}`
+      + createLatestVersion(dependency, node.version)
       + `</li>`);
     generateHTML(node.children, `${indent}  `);
   }

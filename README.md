@@ -2,6 +2,8 @@
 
 Easily visualize your Maven project dependencies as an HTML file with links the Maven Repository.
 
+Also includes an application to check for the latest versions of all of your dependencies and to list them in the
+output.
 
 ## Prerequisites
 
@@ -37,3 +39,11 @@ mvn dependency:tree | depstree2html --ignore-packages org.acme,com.example > out
 This will generate output.html without linking dependencies that start with `org.acme` or `com.example`.
 
 Finally, open **output.html** in your browser to view the dependencies.
+
+### Viewing the latest versions of your dependencies
+
+To find out the latest version of each dependency, run the `depstree-latest-version-checker.js` script.
+It will take approximately a minute to query each hundred dependencies, and in the end the latest version of each
+dependency will be written to `latestVersions.json`. When you have this file in the directory where you then run
+`depstree2html`, the results will be amended with info about the latest versions. Note that you should also use the
+`--ignore-packages` option with `depstree-latest-version-checker.js`.
