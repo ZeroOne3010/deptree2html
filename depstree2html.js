@@ -33,8 +33,8 @@ console.log('span.scope, span.packaging { color: grey; }');
 console.log('.hidden { display: none; }');
 console.log('</style>');
 console.log("<script>");
-console.log("  const toggleTestDependencies = () => {");
-console.log("    const elements = document.querySelectorAll('li.test');");
+console.log("  const toggleBySelector = (selector) => {");
+console.log("    const elements = document.querySelectorAll(selector);");
 console.log("    elements.forEach((el) => {");
 console.log("      if (el.classList.contains('hidden')) {");
 console.log("        el.classList.remove('hidden');");
@@ -43,10 +43,17 @@ console.log("        el.classList.add('hidden');");
 console.log("      }");
 console.log("    });");
 console.log("  }");
+console.log("  const toggleTestDependencies = () => {");
+console.log("    toggleBySelector('li.test');");
+console.log("  }");
+console.log("  const toggleTransitiveDependencies = () => {");
+console.log("    toggleBySelector('ul.transitive');");
+console.log("  }");
 console.log("</script>");
 console.log('</head>');
 console.log('<body>');
-console.log('<button onclick="toggleTestDependencies()">Toggle Test Dependencies</button>');
+console.log('<button onclick="toggleTestDependencies()">Toggle test dependencies</button>');
+console.log('<button onclick="toggleTransitiveDependencies()">Toggle transitive dependencies</button>');
 if (latestVersions.date) {
   console.log(`<p>Latest versions refreshed on ${latestVersions.date}</p>`);
 }
@@ -103,9 +110,9 @@ rl.on('close', function () {
   console.log('</html>');
 });
 
-function generateHTML(nodes, indent = '') {
+function generateHTML(nodes, indent = 0) {
   if (nodes.length === 0) return;
-  console.log(`${indent}<ul>`);
+  console.log(`${' '.repeat(indent)}<ul${indent > 1 ? ' class="transitive"' : ''}>`);
 
   const createLinkOrPlainText = (baseArtifactUrl, dependency, specificVersionUrl, node) => {
     if (ignorePackages && ignorePackages.find(ignoredPackage => dependency.startsWith(ignoredPackage))) {
@@ -130,13 +137,13 @@ function generateHTML(nodes, indent = '') {
     const baseArtifactUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}`;
     const specificVersionUrl = `https://mvnrepository.com/artifact/${node.groupId}/${node.artifactId}/${node.version}`;
     const dependency = `${node.groupId}:${node.artifactId}`;
-    console.log(`${indent}  <li${!!node.scope && node.scope === 'test' ? ' class="test"' : ''}>`
+    console.log(`${' '.repeat(indent)}<li${!!node.scope && node.scope === 'test' ? ' class="test"' : ''}>`
       + createLinkOrPlainText(baseArtifactUrl, dependency, specificVersionUrl, node)
       + `<span class="packaging">:${node.packaging}</span>`
       + `${!!node.scope ? '<span class="scope">:' + node.scope + '</span>' : ''}`
       + createLatestVersion(dependency, node.version)
       + `</li>`);
-    generateHTML(node.children, `${indent}  `);
+    generateHTML(node.children, indent + 1);
   }
-  console.log(`${indent}</ul>`);
+  console.log(`${' '.repeat(indent)}</ul>`);
 }
