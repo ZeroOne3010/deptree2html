@@ -63,7 +63,7 @@ console.log('  test.addEventListener("change", setTestDependencies);');
 console.log('  transitive.addEventListener("change", setTransitiveDependencies)');
 console.log('  </script>');
 console.log('</div>')
-if (latestVersions.date) {
+if (latestVersions?.date) {
   console.log(`<p>Latest versions refreshed on ${latestVersions.date}</p>`);
 }
 
